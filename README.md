@@ -10,3 +10,8 @@ The syllable used `GT2000-K2` font. If you prefer anoter font, just change the a
 ## How to run
 
 Just grab the index.html and open it with modern browser (tested on latest chrome and firefox).
+
+
+## Demo
+
+[http://adisayoga.github.io/kana-test](http://adisayoga.github.io/kana-test)

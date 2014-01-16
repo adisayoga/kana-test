@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Simple application for remembering hiragana and katakana">
+  <meta name="author" content="Adi Sayoga">
+
+  <title>Hiragana/Katakana Tes</title>
+
+  <style type="text/css">
+    html, body { margin: 0; padding: 0; }
+    body, button, input, textarea, select {
+      font: 12px normal, "Open Sans", Arial, Sans-Serif; color: #222;
+    }
+    h1, h2 { font-weight: normal; }
+    h1 { color: #888; }
+    button, input, textarea, select {
+      display: inline-block; padding: 5px; margin: 0;
+    }
+    input, textarea, select { border: 1px solid #CCC; }
+    input:focus, textarea:focus, select:focus {
+      outline: none; border-color: #92C4FE;
+    }
+    label { display: inline-block; height: 20px; }
+    label input[type="checkbox"] { margin-top: 3px; margin-right: 3px; float: left; }
+
+    .pull-left { float: left; }
+    .pull-right { float: right; }
+    .clearfix:before, .clearfix:after { display: table; content: " "; }
+    .clearfix:after { clear: both; }
+    .hidden { display: none; }
+    .container { width: 100%; max-width: 800px; margin: 0 auto; }
+    .syllable { font-family: "GT2000-K2", "Meiryo", Sans-Serif; }
+
+    .header { margin-bottom: 45px; padding-top: 15px; }
+
+    .menu, .menu li { display: block; margin: 0; padding: 0; list-style: none; }
+    .menu li { float: left; margin-right: 10px }
+    .menu a {
+      display: block; padding: 5px; color: inherit; text-decoration: none;
+      border-bottom: 2px solid #EEE;
+      min-width: 100px; text-align: center;
+    }
+    .menu a:hover { border-color: #AAA; }
+    .menu .current a { font-weight: bold; border-color: #F70; cursor: default; }
+    .menu .current:hover a { border-color: #F70; }
+
+    .copyright { color: #666; padding: 10px; }
+
+    .options, .question, .instruction, .answer, .status, .stop-options {
+      text-align: center;
+    }
+
+    #content-test { padding-top: 30px; }
+    .options { margin-bottom: 20px; }
+    .options label { margin-right: 15px; }
+    .options label:last-child { margin-right: 0; }
+
+    .instruction { color: #666; margin-bottom: 20px; }
+
+
+    .question { font-size: 200px; margin-bottom: 20px; }
+    .question span { border: 1px solid #CCC; }
+    .question .wrong { border-color: #FFC5C5; color: red; }
+
+    .answer input {
+      font-size: 20px; text-align: center;
+      width: 80px; border-top: none; border-left: none; border-right: none;
+    }
+
+    .status { width: auto; margin: 15px auto; border-collapse: collapse; font-size: 13px; }
+    .status td { padding: 0 10px; }
+    .status .correct-count { color: green; }
+    .status .wrong-count { color: red; }
+
+    .stop-options input {
+      padding: 0; text-align: center;
+      width: 30px; border-top: none; border-left: none; border-right: none;
+      margin-bottom: 50px;
+    }
+
+    .syllables-table {
+      border-collapse: collapse; border: 1px solid #CCC; margin: 0 auto;
+      margin-bottom: 20px;
+    }
+    .syllables-table th, .syllables-table td {
+      border: 1px solid #CCC; text-align: center; padding: 5px; min-width: 20px;
+    }
+    .syllables-table th { font-weight: normal; background: #F0F0F0; }
+    .syllables-table td .syllable { font-size: 36px; padding: 5px; }
+    .syllables-table .special{ color: red; }
+    .syllables-table td:hover { background: whitesmoke; }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="container clearfix">
+      <nav class="pull-left">
+        <ul class="menu clearfix">
+          <li id="menu-test" class="current"><a href="#">Test</a></li>
+          <li id="menu-hiragana"><a href="#">Hiragana Table</a></li>
+          <li id="menu-katakana"><a href="#">Katakana Table</a></li>
+        </ul>
+      </nav>
+      <div class="copyright pull-right">&copy; 2014 Adi Sayoga</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="content-test" class="page">
+      <div class="options">
+        <label><input type="checkbox" id="hiragana" checked> Hiragana</label>
+        <label><input type="checkbox" id="katakana" checked> Katakana</label>
+        <label><input type="checkbox" id="nigori" checked> Nigori</label>
+        <label><input type="checkbox" id="combination" checked> Combination</label>
+      </div>
+
+      <div class="question syllable"><span>&nbsp;</span></div>
+
+      <div class="instruction">What syllable is this?<br>Press Esc key for anoter syllable</div>
+
+      <div class="answer">
+        <input type="text" id="answer" placeholder="Answer" autofocus>
+      </div>
+
+      <table class="status">
+        <tr>
+          <td>Attempt: <span class="attempt-count">0</span></td>
+          <td>Correct: <span class="correct-count">0</span></td>
+          <td>Wrong: <span class="wrong-count">0</span></td>
+          <td>Percentage: <span class="correct-percentage">0</span>%</td>
+        </tr>
+      </table>
+
+      <div class="stop-options">
+        Stop when attempt count reached <input type="text" id="max-attempt" value="100"> times
+      </div>
+    </div>
+
+    <div id="content-hiragana" class="page hidden">
+      <h1>Hiragana</h1>
+      <div id="hiragana-table"></div>
+    </div>
+    <div id="content-katakana" class="page hidden">
+      <h1>Katakana</h1>
+      <div id="katakana-table"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    (function() {
+      function switchPage(menuId, menuItems, pages) {
+        // Menu
+        for (var i = 0, length = menuItems.length; i < length; i++) {
+          var item = menuItems[i];
+          item.classList.toggle('current', item.id === menuId);
+        }
+
+        // Page
+        var pageId = menuId.replace('menu-', 'content-');
+        for (var i = 0, length = pages.length; i < length; i++) {
+          var page = pages[i];
+          page.classList.toggle('hidden', page.id !== pageId);
+        }
+      }
+
+      // Menu click
+      (function bindMenu() {
+        var menuItems = document.querySelectorAll('.menu li');
+        var pages = document.querySelectorAll('.page');
+
+        for (var i = 0, length = menuItems.length; i < length; i++) {
+          menuItems[i].addEventListener('click', function(event) {
+            event.preventDefault();
+            if (this.classList.contains('current')) return;
+            switchPage(this.id, menuItems, pages);
+          });
+        }
+      })();
+    })(undefined);
+  </script>
+
+  <script type="text/javascript">
+    var Kana = function() {
+      this.data = [
+        { hiragana: 'あ', katakana: 'ア', romaji: 'a', part1: '', part2: 'a' },
+        { hiragana: 'い', katakana: 'イ', romaji: 'i', part1: '', part2: 'i' },
+        { hiragana: 'う', katakana: 'ウ', romaji: 'u', part1: '', part2: 'u' },
+        { hiragana: 'え', katakana: 'エ', romaji: 'e', part1: '', part2: 'e' },
+        { hiragana: 'お', katakana: 'オ', romaji: 'o', part1: '', part2: 'o' },
+
+        { hiragana: 'か', katakana: 'カ', romaji: 'ka', part1: 'k', part2: 'a' },
+        { hiragana: 'き', katakana: 'キ', romaji: 'ki', part1: 'k', part2: 'i' },
+        { hiragana: 'く', katakana: 'ク', romaji: 'ku', part1: 'k', part2: 'u' },
+        { hiragana: 'け', katakana: 'ケ', romaji: 'ke', part1: 'k', part2: 'e' },
+        { hiragana: 'こ', katakana: 'コ', romaji: 'ko', part1: 'k', part2: 'o' },
+
+        { hiragana: 'が', katakana: 'ガ', romaji: 'ga', nigori: true, part1: 'g', part2: 'a' },
+        { hiragana: 'ぎ', katakana: 'ギ', romaji: 'gi', nigori: true, part1: 'g', part2: 'i' },
+        { hiragana: 'ぐ', katakana: 'グ', romaji: 'gu', nigori: true, part1: 'g', part2: 'u' },
+        { hiragana: 'げ', katakana: 'ゲ', romaji: 'ge', nigori: true, part1: 'g', part2: 'e' },
+        { hiragana: 'ご', katakana: 'ゴ', romaji: 'go', nigori: true, part1: 'g', part2: 'o' },
+
+        { hiragana: 'さ', katakana: 'サ', romaji: 'sa', part1: 's', part2: 'a' },
+        { hiragana: 'し', katakana: 'シ', romaji: 'shi', part1: 's', part2: 'i' },
+        { hiragana: 'す', katakana: 'ス', romaji: 'su', part1: 's', part2: 'u' },
+        { hiragana: 'せ', katakana: 'セ', romaji: 'se', part1: 's', part2: 'e' },
+        { hiragana: 'そ', katakana: 'ソ', romaji: 'so', part1: 's', part2: 'o' },
+
+        { hiragana: 'ざ', katakana: 'ザ', romaji: 'za', nigori: true, part1: 'z', part2: 'a' },
+        { hiragana: 'じ', katakana: 'ジ', romaji: 'ji', nigori: true, part1: 'z', part2: 'i' },
+        { hiragana: 'ず', katakana: 'ズ', romaji: 'zu', nigori: true, part1: 'z', part2: 'u' },
+        { hiragana: 'ぜ', katakana: 'ゼ', romaji: 'ze', nigori: true, part1: 'z', part2: 'e' },
+        { hiragana: 'ぞ', katakana: 'ゾ', romaji: 'zo', nigori: true, part1: 'z', part2: 'o' },
+
+        { hiragana: 'た', katakana: 'タ', romaji: 'ta', part1: 't', part2: 'a' },
+        { hiragana: 'ち', katakana: 'チ', romaji: 'chi', part1: 't', part2: 'i' },
+        { hiragana: 'つ', katakana: 'ツ', romaji: 'tsu', part1: 't', part2: 'u' },
+        { hiragana: 'て', katakana: 'テ', romaji: 'te', part1: 't', part2: 'e' },
+        { hiragana: 'と', katakana: 'ト', romaji: 'to', part1: 't', part2: 'o' },
+
+        { hiragana: 'だ', katakana: 'ダ', romaji: 'da', nigori: true, part1: 'd', part2: 'a' },
+        { hiragana: 'ぢ', katakana: 'ヂ', romaji: 'ji', nigori: true, part1: 'd', part2: 'i' },
+        { hiragana: 'づ', katakana: 'ヅ', romaji: 'dzu', nigori: true, part1: 'd', part2: 'u' },
+        { hiragana: 'で', katakana: 'デ', romaji: 'de', nigori: true, part1: 'd', part2: 'e' },
+        { hiragana: 'ど', katakana: 'ド', romaji: 'do', nigori: true, part1: 'd', part2: 'o' },
+
+        { hiragana: 'な', katakana: 'ナ', romaji: 'na', part1: 'n', part2: 'a' },
+        { hiragana: 'に', katakana: 'ニ', romaji: 'ni', part1: 'n', part2: 'i' },
+        { hiragana: 'ぬ', katakana: 'ヌ', romaji: 'nu', part1: 'n', part2: 'u' },
+        { hiragana: 'ね', katakana: 'ネ', romaji: 'ne', part1: 'n', part2: 'e' },
+        { hiragana: 'の', katakana: 'ノ', romaji: 'no', part1: 'n', part2: 'o' },
+
+        { hiragana: 'は', katakana: 'ハ', romaji: 'ha', part1: 'h', part2: 'a' },
+        { hiragana: 'ひ', katakana: 'ヒ', romaji: 'hi', part1: 'h', part2: 'i' },
+        { hiragana: 'ふ', katakana: 'フ', romaji: 'fu', part1: 'h', part2: 'u' },
+        { hiragana: 'へ', katakana: 'ヘ', romaji: 'he', part1: 'h', part2: 'e' },
+        { hiragana: 'ほ', katakana: 'ホ', romaji: 'ho', part1: 'h', part2: 'o' },
+
+        { hiragana: 'ば', katakana: 'バ', romaji: 'ba', nigori: true, part1: 'b', part2: 'a' },
+        { hiragana: 'び', katakana: 'ビ', romaji: 'bi', nigori: true, part1: 'b', part2: 'i' },
+        { hiragana: 'ぶ', katakana: 'ブ', romaji: 'bu', nigori: true, part1: 'b', part2: 'u' },
+        { hiragana: 'べ', katakana: 'ベ', romaji: 'be', nigori: true, part1: 'b', part2: 'e' },
+        { hiragana: 'ぼ', katakana: 'ボ', romaji: 'bo', nigori: true, part1: 'b', part2: 'o' },
+
+        { hiragana: 'ぱ', katakana: 'パ', romaji: 'pa', nigori: true, part1: 'p', part2: 'a' },
+        { hiragana: 'ぴ', katakana: 'ピ', romaji: 'pi', nigori: true, part1: 'p', part2: 'i' },
+        { hiragana: 'ぷ', katakana: 'プ', romaji: 'pu', nigori: true, part1: 'p', part2: 'u' },
+        { hiragana: 'ぺ', katakana: 'ペ', romaji: 'pe', nigori: true, part1: 'p', part2: 'e' },
+        { hiragana: 'ぽ', katakana: 'ポ', romaji: 'po', nigori: true, part1: 'p', part2: 'o' },
+
+        { hiragana: 'ま', katakana: 'マ', romaji: 'ma', part1: 'm', part2: 'a' },
+        { hiragana: 'み', katakana: 'ミ', romaji: 'mi', part1: 'm', part2: 'i' },
+        { hiragana: 'む', katakana: 'ム', romaji: 'mu', part1: 'm', part2: 'u' },
+        { hiragana: 'め', katakana: 'メ', romaji: 'me', part1: 'm', part2: 'e' },
+        { hiragana: 'も', katakana: 'モ', romaji: 'mo', part1: 'm', part2: 'o' },
+
+        { hiragana: 'や', katakana: 'ヤ', romaji: 'ya', part1: 'y', part2: 'a' },
+        { hiragana: 'ゆ', katakana: 'ユ', romaji: 'yu', part1: 'y', part2: 'u' },
+        { hiragana: 'よ', katakana: 'ヨ', romaji: 'yo', part1: 'y', part2: 'o' },
+
+        { hiragana: 'ら', katakana: 'ラ', romaji: 'ra', part1: 'r', part2: 'a' },
+        { hiragana: 'り', katakana: 'リ', romaji: 'ri', part1: 'r', part2: 'i' },
+        { hiragana: 'る', katakana: 'ル', romaji: 'ru', part1: 'r', part2: 'u' },
+        { hiragana: 'れ', katakana: 'レ', romaji: 're', part1: 'r', part2: 'e' },
+        { hiragana: 'ろ', katakana: 'ロ', romaji: 'ro', part1: 'r', part2: 'o' },
+
+        { hiragana: 'わ', katakana: 'ワ', romaji: 'wa', part1: 'w', part2: 'a' },
+        { hiragana: 'を', katakana: 'ヲ', romaji: 'o', part1: 'w', part2: 'o' },
+
+        { hiragana: 'ん', katakana: 'ン', romaji: 'n', part1: 'n', part2: '' },
+
+        { hiragana: 'きゃ', katakana: 'キャ', romaji: 'kya', combination: true, part1: 'k', part2: 'ya' },
+        { hiragana: 'きゅ', katakana: 'キュ', romaji: 'kyu', combination: true, part1: 'k', part2: 'yu' },
+        { hiragana: 'きょ', katakana: 'キョ', romaji: 'kyo', combination: true, part1: 'k', part2: 'yo' },
+        { hiragana: 'ぎゃ', katakana: 'ギャ', romaji: 'gya', combination: true, nigori: true, part1: 'g', part2: 'ya' },
+        { hiragana: 'ぎゅ', katakana: 'ギュ', romaji: 'gyu', combination: true, nigori: true, part1: 'g', part2: 'yu' },
+        { hiragana: 'ぎょ', katakana: 'ギョ', romaji: 'gyo', combination: true, nigori: true, part1: 'g', part2: 'yo' },
+
+        { hiragana: 'しゃ', katakana: 'シャ', romaji: 'sha', combination: true, part1: 's', part2: 'ya' },
+        { hiragana: 'しゅ', katakana: 'シュ', romaji: 'shu', combination: true, part1: 's', part2: 'yu' },
+        { hiragana: 'しょ', katakana: 'ショ', romaji: 'sho', combination: true, part1: 's', part2: 'yo' },
+        { hiragana: 'じゃ', katakana: 'ジャ', romaji: 'ja', combination: true, nigori: true, part1: 'j', part2: 'ya' },
+        { hiragana: 'じゅ', katakana: 'ジュ', romaji: 'ju', combination: true, nigori: true, part1: 'j', part2: 'yu' },
+        { hiragana: 'じょ', katakana: 'ジョ', romaji: 'jo', combination: true, nigori: true, part1: 'j', part2: 'yo' },
+
+        { hiragana: 'ちゃ', katakana: 'チャ', romaji: 'cha', combination: true, part1: 'c', part2: 'ya' },
+        { hiragana: 'ちゅ', katakana: 'チュ', romaji: 'chu', combination: true, part1: 'c', part2: 'yu' },
+        { hiragana: 'ちょ', katakana: 'チョ', romaji: 'cho', combination: true, part1: 'c', part2: 'yo' },
+
+        { hiragana: 'にゃ', katakana: 'ニャ', romaji: 'nya', combination: true, part1: 'n', part2: 'ya' },
+        { hiragana: 'にゅ', katakana: 'ニュ', romaji: 'nyu', combination: true, part1: 'n', part2: 'yu' },
+        { hiragana: 'にょ', katakana: 'ニョ', romaji: 'nyo', combination: true, part1: 'n', part2: 'yo' },
+
+        { hiragana: 'ひゃ', katakana: 'ヒャ', romaji: 'hya', combination: true, part1: 'h', part2: 'ya' },
+        { hiragana: 'ひゅ', katakana: 'ヒュ', romaji: 'hyu', combination: true, part1: 'h', part2: 'yu' },
+        { hiragana: 'ひょ', katakana: 'ヒョ', romaji: 'hyo', combination: true, part1: 'h', part2: 'yo' },
+        { hiragana: 'びゃ', katakana: 'ビャ', romaji: 'bya', combination: true, nigori: true, part1: 'b', part2: 'ya' },
+        { hiragana: 'びゅ', katakana: 'ビュ', romaji: 'byu', combination: true, nigori: true, part1: 'b', part2: 'yu' },
+        { hiragana: 'びょ', katakana: 'ビョ', romaji: 'byo', combination: true, nigori: true, part1: 'b', part2: 'yo' },
+        { hiragana: 'ぴゃ', katakana: 'ピャ', romaji: 'pya', combination: true, nigori: true, part1: 'p', part2: 'ya' },
+        { hiragana: 'ぴゅ', katakana: 'ピュ', romaji: 'pyu', combination: true, nigori: true, part1: 'p', part2: 'yu' },
+        { hiragana: 'ぴょ', katakana: 'ピョ', romaji: 'pyo', combination: true, nigori: true, part1: 'p', part2: 'yo' },
+
+        { hiragana: 'みゃ', katakana: 'ミャ', romaji: 'mya', combination: true, part1: 'm', part2: 'ya' },
+        { hiragana: 'みゅ', katakana: 'ミュ', romaji: 'myu', combination: true, part1: 'm', part2: 'yu' },
+        { hiragana: 'みょ', katakana: 'ミョ', romaji: 'myo', combination: true, part1: 'm', part2: 'yo' },
+
+        { hiragana: 'りゃ', katakana: 'リャ', romaji: 'rya', combination: true, part1: 'r', part2: 'ya' },
+        { hiragana: 'りゅ', katakana: 'リュ', romaji: 'ryu', combination: true, part1: 'r', part2: 'yu' },
+        { hiragana: 'りょ', katakana: 'リョ', romaji: 'ryo', combination: true, part1: 'r', part2: 'yo' }
+      ];
+    };
+
+    Kana.prototype = {
+      random: function(options) {
+        // Set default options
+        options = options || {};
+        options = {
+          hiragana:    options.hiragana === false ? false : true,
+          katakana:    options.katakana === false ? false : true,
+          nigori:      options.nigori === false ? false : true,
+          combination: options.combination === false ? false : true
+        };
+
+        var dataLength = this.data.length;
+        var type;
+        if (options.hiragana && !options.katakana) {
+          type = 'HIRAGANA';
+        } else if (!options.hiragana && options.katakana) {
+          type = 'KATAKANA';
+        } else {
+          type = Math.floor(Math.random() * 2) == 0 ? 'HIRAGANA' : 'KATAKANA';
+        }
+
+        // Empty
+        if (!options.hiragana && !options.katakana && !options.nigori && !options.combination) {
+          return null;
+        }
+
+        do {
+          var syllable = this.data[Math.floor(Math.random() * dataLength)];
+
+          // Valid if hiragana or katakana
+          var valid = (options.hiragana && type === 'HIRAGANA') || (options.katakana && type === 'KATAKANA');
+          if (valid) {
+            // Add optional nigori and/or combination
+            valid = (options.nigori || !syllable.nigori) && (options.combination || !syllable.combination);
+          } else {
+            // If neither hiragana nor katakana, return nigori and/or combination only
+            if (options.nigori && options.combination) {
+              // Nigori and combination
+              valid = syllable.nigori || syllable.combination;
+            } else if (options.nigori) {
+              // Only nigori
+              valid = syllable.nigori && !syllable.combination;
+            } else if (options.combination) {
+              // Only combination
+              valid = !syllable.nigori && syllable.combination;
+            }
+          }
+          if (valid) break;
+        } while (true);
+
+        return {
+          value: syllable[type.toLowerCase()],
+          romaji: syllable.romaji,
+          type: type
+        };
+     },
+
+      match: function(syllable, romaji) {
+        romaji = romaji.toLowerCase();
+
+        for (var i = 0, length = this.data.length; i < length; i++) {
+          var syllableCheck = this.data[i];
+          if (romaji === syllableCheck.romaji) {
+            if ((syllable.type === 'HIRAGANA' && syllable.value === syllableCheck.hiragana) ||
+                (syllable.type === 'KATAKANA' && syllable.value === syllableCheck.katakana)) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+    };
+  </script>
+
+  <script type="text/javascript">
+    (function() {
+      function getOptions() {
+        var options = {};
+
+        var optionsEl = document.querySelectorAll('.options input[type="checkbox"]');
+        for (var i = 0, length = optionsEl.length; i < length; i++) {
+          var element = optionsEl[i];
+          options[element.id] = element.checked;
+        }
+
+        var maxAttemptEl = document.querySelector('#max-attempt');
+        options.maxAttempt = parseInt(maxAttemptEl.value);
+
+        return options;
+      }
+
+      function showRandom(kana, options) {
+        var value = '&nbsp;&nbsp;&nbsp;&nbsp;', title = '';
+        var syllable = kana.random(options);
+        if (syllable) {
+          title = (syllable.type === 'HIRAGANA' ? 'Hiragana: ' : 'Katakana: ') + syllable.romaji;
+          value = syllable.value;
+        }
+
+        var question = document.querySelector('.question span');
+        question.setAttribute('title', title);
+        question.textContent = value;
+
+        return syllable;
+      }
+
+      function showStatus(attemptCount, correctCount) {
+        var wrongCount = attemptCount - correctCount;
+        var percentage = (attemptCount > 0) ? correctCount * 100 / attemptCount : 0;
+
+        document.querySelector('.attempt-count').textContent = attemptCount;
+        document.querySelector('.correct-count').textContent = correctCount;
+        document.querySelector('.wrong-count').textContent = wrongCount;
+        document.querySelector('.correct-percentage').textContent = percentage.toFixed();
+      }
+
+      function showSummary(attemptCount, correctCount) {
+        var message = '';
+        var percentage = (attemptCount > 0) ? correctCount * 100 / attemptCount : 0;
+        if (attemptCount === correctCount) {
+          message = 'Congrulation! In {{attemptCount}} attempts, everything was right.';
+        } else if (percentage === 0) {
+          message = 'Boo... You didn\'t learn anything!';
+        } else if (percentage <= 25) {
+          message = 'Boo... In {{attemptCount}} attempts, you can only answer {{correctCount}} ({{percentage}}%).';
+        } else {
+          message = 'In {{attemptCount}} attempts, {{correctCount}} correct ({{percentage}}%).';
+        }
+        message = message.replace('{{attemptCount}}', attemptCount)
+                         .replace('{{correctCount}}', correctCount)
+                         .replace('{{percentage}}', percentage.toFixed());
+        alert(message);
+      }
+
+      function reset() {
+        attemptCount = 0, correctCount = 0;
+        showStatus(0, 0);
+        document.querySelector('.question span').classList.remove('wrong');
+      }
+
+      var attemptCount = 0, correctCount = 0;
+      var kana = new Kana();
+      var options = getOptions();
+      var syllable = showRandom(kana, options);
+
+      // Answer
+      (function() {
+        var romajis = kana.data.map(function(syllable) { return syllable.romaji; });
+        var answerEl = document.querySelector('#answer');
+        answerEl.addEventListener('keyup', function(event) {
+          if (event.keyCode === 27) return; // escape
+
+          var value = answerEl.value.toLowerCase();
+          if (value === 'n' && syllable.romaji !== 'n') return;
+          if (romajis.indexOf(value) === -1) return;
+
+          // Check answer
+          attemptCount++;
+          var correctAnswer = value && kana.match(syllable, value);
+          if (correctAnswer) correctCount++;
+          answerEl.value = '';
+
+          // Add "wrong" class if the answer is wrong
+          var questionEl = document.querySelector('.question span');
+          questionEl.classList.toggle('wrong', value && !correctAnswer);
+          showStatus(attemptCount, correctCount);
+
+          // Show next random
+          if (correctAnswer) syllable = showRandom(kana, options);
+
+          // Summary
+          if (attemptCount >= options.maxAttempt) {
+            showSummary(attemptCount, correctCount);
+            reset();
+          }
+
+        });
+
+        // Escape: forget it, just show the next random
+        document.addEventListener('keyup', function(event) {
+          if (event.keyCode === 27) {
+            attemptCount++;
+            showStatus(attemptCount, correctCount);
+            syllable = showRandom(kana, options);
+            if (attemptCount >= options.maxAttempt) {
+              showSummary(attemptCount, correctCount);
+              reset();
+            }
+            document.querySelector('.question span').classList.remove('wrong');
+          }
+        });
+      })();
+
+      // Options listener
+      (function() {
+        var optionsEl = document.querySelectorAll('.options input[type="checkbox"]');
+        for (var i = 0, length = optionsEl.length; i < length; i++) {
+          var element = optionsEl[i];
+          element.addEventListener('click', function(event) {
+            options[this.id] = this.checked;
+            syllable = showRandom(kana, options);
+          });
+        }
+
+        var maxAttemptEl = document.querySelector('#max-attempt')
+        maxAttemptEl.addEventListener('keyup', function(event) {
+          options.maxAttempt = parseInt(maxAttemptEl.value);
+        });
+      })();
+
+    })(undefined);
+  </script>
+
+  <script type="text/javascript">
+    (function() {
+      function buildTableData(syllables) {
+        var data = {};
+        for (var i = 0, length = syllables.length; i < length; i++) {
+          var syllable = syllables[i];
+          data[syllable.part1 + syllable.part2] = {
+            hiragana: syllable.hiragana,
+            katakana: syllable.katakana,
+            romaji: syllable.romaji,
+            special: (syllable.part1 + syllable.part2 !== syllable.romaji) ? syllable.romaji : null
+          }
+        }
+        return data;
+      }
+
+      function buildTable(type, cols, rows, data) {
+        type = type.toLowerCase();
+        var colsLength = cols.length, rowsLength = rows.length;
+
+        var table = document.createElement('table');
+        var thead = document.createElement('thead');
+        var tbody = document.createElement('tbody');
+
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        table.classList.add('syllables-table');
+
+        var trHead = document.createElement('tr');
+        thead.appendChild(trHead);
+
+        for (var i = 0; i < rowsLength; i++) {
+          var row = rows[i];
+          var tr = document.createElement('tr');
+          tbody.appendChild(tr);
+
+          for (var j = 0; j < colsLength; j++) {
+            var col = cols[j];
+            var key = (col === ' n ' && row === 'a') ? 'n' : col + row;
+
+            // head
+            if (i === 0) {
+              var th = document.createElement('th');
+              th.textContent = col;
+              trHead.appendChild(th);
+            }
+
+            // body
+            var td = document.createElement('td');
+
+            if (data.hasOwnProperty(key)) {
+              var content = '<div class="syllable" title="' + data[key].romaji + '">' +
+                              data[key][type] +
+                            '</div>';
+              if (data[key].special) {
+                td.classList.add('special');
+                content += '<div>(' + data[key].special + ')</div>';
+              }
+              td.innerHTML = content;
+            }
+            tr.appendChild(td);
+
+            // row head
+            if (j === colsLength - 1) {
+              if (i === 0) {
+                var thHeadRow = document.createElement('th');
+                trHead.appendChild(thHeadRow);
+              }
+
+              var thRow = document.createElement('th');
+              thRow.textContent = row;
+              tr.appendChild(thRow);
+            }
+          }
+        }
+
+        return table;
+      }
+
+      var kana = new Kana();
+      var tableData = buildTableData(kana.data);
+      var hiraganaTable = document.querySelector('#hiragana-table');
+      var katakanaTable = document.querySelector('#katakana-table');
+
+      // Hiragana
+      var tableHiragana = buildTable('hiragana',
+        [' n ', 'w', 'r', 'y', 'm', 'h', 'n', 't', 's', 'k', ''],
+        ['a', 'i', 'u', 'e', 'o'],
+        tableData
+      );
+      hiraganaTable.appendChild(tableHiragana);
+
+      var tableHiraganaNigori = buildTable('hiragana',
+        ['p', 'b', 'd', 'z', 'g'],
+        ['a', 'i', 'u', 'e', 'o'],
+        tableData)
+      hiraganaTable.appendChild(tableHiraganaNigori);
+
+      var tableHiraganaCombination1 = buildTable('hiragana',
+        ['r', 'm', 'h', 'n', 'c', 's', 'k'],
+        ['ya', 'yu', 'yo'],
+        tableData)
+      hiraganaTable.appendChild(tableHiraganaCombination1);
+
+      var tableHiraganaCombination2 = buildTable('hiragana',
+        ['p', 'b', 'j', 'g'],
+        ['ya', 'yu', 'yo'],
+        tableData)
+      hiraganaTable.appendChild(tableHiraganaCombination2);
+
+      // Katakana
+      var tableKatakana = buildTable('katakana',
+        [' n ', 'w', 'r', 'y', 'm', 'h', 'n', 't', 's', 'k', ''],
+        ['a', 'i', 'u', 'e', 'o'],
+        tableData
+      );
+      katakanaTable.appendChild(tableKatakana);
+
+      var tableKatakanaNigori = buildTable('katakana',
+        ['p', 'b', 'd', 'z', 'g'],
+        ['a', 'i', 'u', 'e', 'o'],
+        tableData)
+      katakanaTable.appendChild(tableKatakanaNigori);
+
+      var tableKatakanaCombination1 = buildTable('katakana',
+        ['r', 'm', 'h', 'n', 'c', 's', 'k'],
+        ['ya', 'yu', 'yo'],
+        tableData)
+      katakanaTable.appendChild(tableKatakanaCombination1);
+
+      var tableKatakanaCombination2 = buildTable('katakana',
+        ['p', 'b', 'j', 'g'],
+        ['ya', 'yu', 'yo'],
+        tableData)
+      katakanaTable.appendChild(tableKatakanaCombination2);
+
+    })(undefined);
+  </script>
+</body>
+</html>

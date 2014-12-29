@@ -14,8 +14,8 @@
     body, button, input, textarea, select {
       font: 12px normal, "Open Sans", Arial, Sans-Serif; color: #222;
     }
-    h1, h2 { font-weight: normal; }
-    h1 { color: #888; }
+    h1 { color: #888; font-weight: normal; }
+    h2 { font-weight: normal; }
     button, input, textarea, select {
       display: inline-block; padding: 5px; margin: 0;
     }
@@ -53,8 +53,7 @@
       text-align: center;
     }
 
-    #content-test { padding-top: 30px; }
-    .options { margin-bottom: 20px; }
+    .options { margin-top: 30px; margin-bottom: 20px; }
     .options label { margin-right: 15px; }
     .options label:last-child { margin-right: 0; }
 
@@ -153,15 +152,15 @@
   <script type="text/javascript">
     (function() {
       function switchPage(menuId, menuItems, pages) {
+        var i, length;
         // Menu
-        for (var i = 0, length = menuItems.length; i < length; i++) {
+        for (i = 0, length = menuItems.length; i < length; i++) {
           var item = menuItems[i];
           item.classList.toggle('current', item.id === menuId);
         }
-
         // Page
         var pageId = menuId.replace('menu-', 'content-');
-        for (var i = 0, length = pages.length; i < length; i++) {
+        for (i = 0, length = pages.length; i < length; i++) {
           var page = pages[i];
           page.classList.toggle('hidden', page.id !== pageId);
         }
@@ -169,15 +168,16 @@
 
       // Menu click
       (function bindMenu() {
+        function onMenuClick(event) {
+          event.preventDefault();
+          if (this.classList.contains('current')) return;
+          switchPage(this.id, menuItems, pages);
+        }
         var menuItems = document.querySelectorAll('.menu li');
         var pages = document.querySelectorAll('.page');
 
         for (var i = 0, length = menuItems.length; i < length; i++) {
-          menuItems[i].addEventListener('click', function(event) {
-            event.preventDefault();
-            if (this.classList.contains('current')) return;
-            switchPage(this.id, menuItems, pages);
-          });
+          menuItems[i].addEventListener('click', onMenuClick);
         }
       })();
     })(undefined);
@@ -333,7 +333,7 @@
         } else if (!options.hiragana && options.katakana) {
           type = 'KATAKANA';
         } else {
-          type = Math.floor(Math.random() * 2) == 0 ? 'HIRAGANA' : 'KATAKANA';
+          type = Math.floor(Math.random() * 2) === 0 ? 'HIRAGANA' : 'KATAKANA';
         }
 
         // Empty
@@ -341,8 +341,9 @@
           return null;
         }
 
+        var syllable;
         do {
-          var syllable = this.data[Math.floor(Math.random() * dataLength)];
+          syllable = this.data[Math.floor(Math.random() * dataLength)];
 
           // Valid if hiragana or katakana
           var valid = (options.hiragana && type === 'HIRAGANA') || (options.katakana && type === 'KATAKANA');
@@ -450,7 +451,8 @@
       }
 
       function reset() {
-        attemptCount = 0, correctCount = 0;
+        attemptCount = 0;
+        correctCount = 0;
         showStatus(0, 0);
         document.querySelector('.question span').classList.remove('wrong');
       }
@@ -510,16 +512,17 @@
 
       // Options listener
       (function() {
+        function onOptionClick(event) {
+          options[this.id] = this.checked;
+          syllable = showRandom(kana, options);
+        }
         var optionsEl = document.querySelectorAll('.options input[type="checkbox"]');
         for (var i = 0, length = optionsEl.length; i < length; i++) {
           var element = optionsEl[i];
-          element.addEventListener('click', function(event) {
-            options[this.id] = this.checked;
-            syllable = showRandom(kana, options);
-          });
+          element.addEventListener('click', onOptionClick);
         }
 
-        var maxAttemptEl = document.querySelector('#max-attempt')
+        var maxAttemptEl = document.querySelector('#max-attempt');
         maxAttemptEl.addEventListener('keyup', function(event) {
           options.maxAttempt = parseInt(maxAttemptEl.value);
         });
@@ -539,7 +542,7 @@
             katakana: syllable.katakana,
             romaji: syllable.romaji,
             special: (syllable.part1 + syllable.part2 !== syllable.romaji) ? syllable.romaji : null
-          }
+          };
         }
         return data;
       }
@@ -623,19 +626,22 @@
       var tableHiraganaNigori = buildTable('hiragana',
         ['p', 'b', 'd', 'z', 'g'],
         ['a', 'i', 'u', 'e', 'o'],
-        tableData)
+        tableData
+      );
       hiraganaTable.appendChild(tableHiraganaNigori);
 
       var tableHiraganaCombination1 = buildTable('hiragana',
         ['r', 'm', 'h', 'n', 'c', 's', 'k'],
         ['ya', 'yu', 'yo'],
-        tableData)
+        tableData
+      );
       hiraganaTable.appendChild(tableHiraganaCombination1);
 
       var tableHiraganaCombination2 = buildTable('hiragana',
         ['p', 'b', 'j', 'g'],
         ['ya', 'yu', 'yo'],
-        tableData)
+        tableData
+      );
       hiraganaTable.appendChild(tableHiraganaCombination2);
 
       // Katakana
@@ -649,19 +655,22 @@
       var tableKatakanaNigori = buildTable('katakana',
         ['p', 'b', 'd', 'z', 'g'],
         ['a', 'i', 'u', 'e', 'o'],
-        tableData)
+        tableData
+      );
       katakanaTable.appendChild(tableKatakanaNigori);
 
       var tableKatakanaCombination1 = buildTable('katakana',
         ['r', 'm', 'h', 'n', 'c', 's', 'k'],
         ['ya', 'yu', 'yo'],
-        tableData)
+        tableData
+      );
       katakanaTable.appendChild(tableKatakanaCombination1);
 
       var tableKatakanaCombination2 = buildTable('katakana',
         ['p', 'b', 'j', 'g'],
         ['ya', 'yu', 'yo'],
-        tableData)
+        tableData
+      );
       katakanaTable.appendChild(tableKatakanaCombination2);
 
     })(undefined);

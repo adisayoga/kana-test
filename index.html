@@ -10,12 +10,20 @@
   <title>Hiragana/Katakana Tes</title>
 
   <style type="text/css">
+    /*-- Scaffolding --*/
+    *, *:before, *:after {
+      -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    }
     html, body { margin: 0; padding: 0; }
     body, button, input, textarea, select {
       font: 12px normal, "Open Sans", Arial, Sans-Serif; color: #222;
     }
     h1 { color: #888; font-weight: normal; }
     h2 { font-weight: normal; }
+    @media (max-width: 767px) {
+      body { padding-left: 15px; padding-right: 15px; }
+    }
+    /*-- Form --*/
     button, input, textarea, select {
       display: inline-block; padding: 5px; margin: 0;
     }
@@ -26,28 +34,45 @@
     label { display: inline-block; height: 20px; }
     label input[type="checkbox"] { margin-top: 3px; margin-right: 3px; float: left; }
 
+    /*-- Utilities --*/
     .pull-left { float: left; }
     .pull-right { float: right; }
     .clearfix:before, .clearfix:after { display: table; content: " "; }
     .clearfix:after { clear: both; }
     .hidden { display: none; }
-    .container { width: 100%; max-width: 800px; margin: 0 auto; }
-    .syllable { font-family: "GT2000-K2", "Meiryo", Sans-Serif; }
 
-    .header { margin-bottom: 45px; padding-top: 15px; }
+    /*-- Header --*/
+    .header { margin-bottom: 45px; padding-top: 15px; padding-bottom: 15px; }
 
     .menu, .menu li { display: block; margin: 0; padding: 0; list-style: none; }
-    .menu li { float: left; margin-right: 10px }
+    .menu li { float: left; margin-right: 10px; min-width: 100px; }
     .menu a {
       display: block; padding: 5px; color: inherit; text-decoration: none;
-      border-bottom: 2px solid #EEE;
-      min-width: 100px; text-align: center;
+      border-bottom: 2px solid #EEE; text-align: center;
     }
     .menu a:hover { border-color: #AAA; }
     .menu .current a { font-weight: bold; border-color: #F70; cursor: default; }
     .menu .current:hover a { border-color: #F70; }
+    @media (max-width: 767px) {
+      .menu { display: table; width: 100%; }
+      .menu li {
+        display: table-cell; float: none; width: 33%;
+        min-width: initial; padding-left: 5px; padding-right: 5px;
+      }
+      .menu-container { margin-left: -5px; margin-right: -5px; }
+    }
 
-    .copyright { color: #666; padding: 10px; }
+    .copyright { color: #666; padding: 10px; float: right; }
+    @media (max-width: 767px) {
+      body { position: relative; padding-bottom: 50px; }
+      .copyright {
+        position: absolute; bottom: 0; left: 0; right: 0;
+        border-top: 1px solid #ddd; }
+    }
+
+    /*-- Content --*/
+    .container { width: 100%; max-width: 800px; margin: 0 auto; }
+    .syllable { font-family: "GT2000-K2", "Meiryo", Sans-Serif; }
 
     .options, .question, .instruction, .answer, .status, .stop-options {
       text-align: center;
@@ -58,11 +83,16 @@
     .options label:last-child { margin-right: 0; }
 
     .instruction { color: #666; margin-bottom: 20px; }
-
+    @media (max-width: 767px) {
+      .instruction div + div { display: none; }
+    }
 
     .question { font-size: 200px; margin-bottom: 20px; }
     .question span { border: 1px solid #CCC; }
     .question .wrong { border-color: #FFC5C5; color: red; }
+    @media (max-width: 767px) {
+      .question { font-size: 100px; }
+    }
 
     .answer input {
       font-size: 20px; text-align: center;
@@ -80,15 +110,19 @@
       margin-bottom: 50px;
     }
 
+    .table-responsive { overflow-x: auto; }
+    .table-container { margin-bottom: 20px; }
     .syllables-table {
       border-collapse: collapse; border: 1px solid #CCC; margin: 0 auto;
-      margin-bottom: 20px;
     }
     .syllables-table th, .syllables-table td {
       border: 1px solid #CCC; text-align: center; padding: 5px; min-width: 20px;
     }
     .syllables-table th { font-weight: normal; background: #F0F0F0; }
     .syllables-table td .syllable { font-size: 36px; padding: 5px; }
+    @media (max-width: 767px) {
+      .syllables-table td .syllable { font-size: 15px; }
+    }
     .syllables-table .special{ color: red; }
     .syllables-table td:hover { background: whitesmoke; }
   </style>
@@ -97,14 +131,14 @@
 <body>
   <header class="header">
     <div class="container clearfix">
-      <nav class="pull-left">
-        <ul class="menu clearfix">
+      <nav class="menu-container">
+        <ul class="menu">
           <li id="menu-test" class="current"><a href="#">Test</a></li>
-          <li id="menu-hiragana"><a href="#">Hiragana Table</a></li>
-          <li id="menu-katakana"><a href="#">Katakana Table</a></li>
+          <li id="menu-hiragana"><a href="#">Hiragana</a></li>
+          <li id="menu-katakana"><a href="#">Katakana</a></li>
         </ul>
       </nav>
-      <div class="copyright pull-right">&copy; 2014 Adi Sayoga</div>
+      <div class="copyright">&copy; 2014 Adi Sayoga</div>
     </div>
   </header>
 
@@ -119,7 +153,10 @@
 
       <div class="question syllable"><span>&nbsp;</span></div>
 
-      <div class="instruction">What syllable is this?<br>Press Esc key for anoter syllable</div>
+      <div class="instruction">
+        <div>What syllable is this?</div>
+        <div>Press Esc key for anoter syllable</div>
+      </div>
 
       <div class="answer">
         <input type="text" id="answer" placeholder="Answer" autofocus>
@@ -135,16 +172,14 @@
       </table>
 
       <div class="stop-options">
-        Stop when attempt count reached <input type="text" id="max-attempt" value="100"> times
+        Stop when attempt count reached <input type="number" id="max-attempt" value="100"> times
       </div>
     </div>
 
     <div id="content-hiragana" class="page hidden">
-      <h1>Hiragana</h1>
       <div id="hiragana-table"></div>
     </div>
     <div id="content-katakana" class="page hidden">
-      <h1>Katakana</h1>
       <div id="katakana-table"></div>
     </div>
   </div>
@@ -408,7 +443,7 @@
       }
 
       function showRandom(kana, options) {
-        var value = '&nbsp;&nbsp;&nbsp;&nbsp;', title = '';
+        var value = '', title = '';
         var syllable = kana.random(options);
         if (syllable) {
           title = (syllable.type === 'HIRAGANA' ? 'Hiragana: ' : 'Katakana: ') + syllable.romaji;
@@ -551,10 +586,15 @@
         type = type.toLowerCase();
         var colsLength = cols.length, rowsLength = rows.length;
 
+        var tableContainer = document.createElement('div');
+        tableContainer.classList.add('table-container');
+        tableContainer.classList.add('table-responsive');
+
         var table = document.createElement('table');
         var thead = document.createElement('thead');
         var tbody = document.createElement('tbody');
 
+        tableContainer.appendChild(table);
         table.appendChild(thead);
         table.appendChild(tbody);
         table.classList.add('syllables-table');
@@ -607,7 +647,7 @@
           }
         }
 
-        return table;
+        return tableContainer;
       }
 
       var kana = new Kana();
